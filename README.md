@@ -105,7 +105,7 @@ mount /dev/корневой_раздел /mnt
 **Совет**: Команда mount, запущенная с опцией `--mkdir`, автоматически создаст требуемую точку монтирования. Можно создать их и вручную с помощью mkdir.
 Для UEFI примонтируйте системный раздел EFI: 
 ```
-mount --mkdir /dev/системный_раздел_efi /mnt/boot
+mount --mkdir /dev/Системный_раздел_EFI /mnt/boot/efi
 ```
 Если вы ранее создали раздел подкачки (`swap`), активируйте его с помощью swapon:
 ```
@@ -183,6 +183,11 @@ FONT=cyr-sun16
 ```
 echo "arch-pc" > /etc/hostname
 ```
+Установите NetworkManager
+```
+pacman -S networkmanager
+```
+ 
 ### 3.6. Initramfs
 Как правило, создание нового образа initramfs не требуется, поскольку pacstrap автоматически запускает `mkinitcpio` после установки пакета `ядра`.
 Если вы используете `LVM`, `шифрование системы` или `RAID`, отредактируйте файл `mkinitcpio.conf` и пересоздайте образ initramfs:
@@ -236,7 +241,7 @@ pacman -S sudo
 ```
 Открыть конфиг для редактирования
 ```
-visudo
+EDITOR=vim visudo
 ```
 Раскоментировать строчку
 ```
@@ -245,4 +250,18 @@ visudo
 Должно стать:
 ```
 %wheel ALL=(ALL) ALL
+```
+### 4.11 Установка PipeWire
+Установите pipewire
+```
+pacman -S pipewire pipewire-alsa pipewire-pulse
+```
+Активируйте службы
+```
+systemctl --user enable pipwire.service
+systemctl --user enable pipewire-pulse
+```
+`(Опцианально)` Установки pulsemixer
+```
+pacman -S pulsemixer
 ```
