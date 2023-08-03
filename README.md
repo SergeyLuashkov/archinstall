@@ -234,7 +234,7 @@ useradd -m -g users -G wheel -s /bin/bash username
 ```
 passwd username
 ```
-### 4.10. Установка sudo
+### 3.10. Установка sudo
 Установить sudo
 ```
 pacman -S sudo
@@ -260,10 +260,11 @@ EDITOR=vim visudo
 root All=(ALL) ALL
 имя_пользователя All=(ALL) ALL
 ```
-### 4.11 Установка PipeWire
+## 5 Установка дополнительных утилит
+### 5.1 Установка PipeWire
 Установите pipewire
 ```
-pacman -S pipewire pipewire-alsa pipewire-pulse
+pacman -S pipewire pipewire-alsa pipewire-pulse wireplumber
 ```
 Активируйте службы
 ```
@@ -273,4 +274,8 @@ systemctl --user enable pipewire-pulse
 `(Опцианально)` Установки pulsemixer
 ```
 pacman -S pulsemixer
+```
+### 5.1 Установка шрифтов Noto
+```
+pacman -Syu noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-noto-nerd 
 ```
