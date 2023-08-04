@@ -332,6 +332,7 @@ brtfs subvolume snapshot /mnt/@snapshots/@root-2015-08-10-20:19 /mnt/@root
 ## 7. Литература
 Установка archlinux: 
 - [ArchWiki](https://wiki.archlinux.org/title/installation_guide_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9))
+
 Btrfs:
 - [ArchWiki](https://wiki.archlinux.org/title/Btrfs_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9))
 - [seraph](https://gist.github.com/seraph/05cc841c87e950da4bc36ff1b43cea98)
