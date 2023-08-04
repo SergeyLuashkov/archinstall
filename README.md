@@ -80,33 +80,66 @@ fdisk /dev/диск_для_разметки
 
 ### 1.6. Форматирование разделов
 Когда новые разделы созданы, каждый из них необходимо отформатировать в подходящую файловую систему.
+#### 1.6.1. Ext4
 ```
 mkfs.ext4 /dev/корневой_раздел
 ```
-или
+#### 1.6.2. Btrfs
+Форматирование одного диска:
 ```
 mkfs.btrfs /dev/корневой_раздел
 ```
+Форматирование нескольких дисков как raid0 массив
+```
+mkfs.btrfs -d raid0 -m raid0 /dev/корневой_раздел1 /dev/корневой_раздел2
+```
+#### 1.6.3. SWAP
 Если вы создали раздел для подкачки (`swap`), инициализируйте его: 
 ```
 mkswap /dev/раздел_подкачки
 ```
+##### 1.6.4. EFI
 Если вы создали системный раздел `EFI`, отформатируйте его в `FAT32` 
 **Важно**: Выполняйте форматирование, только если вы создали новый раздел в процессе разметки. Если системный раздел EFI уже существует, его форматирование уничтожит загрузчики других установленных операционных систем.
 ```
 mkfs.fat -F32 /dev/системный_раздел_efi
 ```
 ### 1.7. Монтирование разделов
+Создайте точки монтирования для всех разделов (например, /mnt/efi) и примонтируйте соответствующие разделы.
+
+**Совет**: Команда mount, запущенная с опцией `--mkdir`, автоматически создаст требуемую точку монтирования. Можно создать их и вручную с помощью mkdir.
+Для UEFI примонтируйте системный раздел EFI: 
+#### 1.7.1. Ext4
 Смонтируйте корневой раздел в каталог /mnt. Например, если корневой раздел — `/dev/корневой_раздел`, выполните следующую команду: 
 ```
 mount /dev/корневой_раздел /mnt
 ```
-Создайте точки монтирования для всех остальных разделов (например, /mnt/efi) и примонтируйте соответствующие разделы.
-**Совет**: Команда mount, запущенная с опцией `--mkdir`, автоматически создаст требуемую точку монтирования. Можно создать их и вручную с помощью mkdir.
-Для UEFI примонтируйте системный раздел EFI: 
+#### 1.7.2. Btrfs
+Смонтируйте корневой раздел в каталог /mnt. Например, если корневой раздел — `/dev/корневой_раздел`, выполните следующую команду: 
+```
+mount /dev/корневой_раздел /mnt
+```
+Создайте подтом (subvolume) для root, home, var и один для моментальных снимков.
+```
+btrfs subvolume create /mnt/@root
+btrfs subvolume create /mnt/@var
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@snapshots
+```
+Смонтируйте их
+```
+umount /mnt
+mount -o noatime,compress=lzo,space_cache,subvol=@root /dev/корневой_раздел /mnt
+mkdir /mnt/{boot,var,home,.snapshots}
+mount -o noatime,compress=lzo,space_cache,subvol=@var /dev/корневой_раздел /mnt/var
+mount -o noatime,compress=lzo,space_cache,subvol=@home /dev/корневой_раздел /mnt/home
+mount -o noatime,compress=lzo,space_cache,subvol=@snapshots /dev/корневой_раздел /mnt/.snapshots
+```
+#### 1.7.3. EFI 
 ```
 mount --mkdir /dev/Системный_раздел_EFI /mnt/boot/EFI
 ```
+#### 1.7.4. SWAP
 Если вы ранее создали раздел подкачки (`swap`), активируйте его с помощью swapon:
 ```
 swapon /dev/раздел_подкачки
@@ -279,3 +312,25 @@ pacman -S pulsemixer
 ```
 pacman -Syu noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-noto-nerd 
 ```
+## 6 Снимок подраздела (subvolume)
+Вы можете создать снимки так
+```
+btrfs subvolume snapshot -r / "/.snapshots/@root-$(date +%F-%R)"
+```
+А для восстановления из моментального снимка вы просто удаляете используемый в настоящее время @root и заменяете его более ранним моментальным снимком.
+```
+mount /dev/sda2 /mnt
+btrfs subvolume delete /mnt/@root
+brtfs subvolume snapshot /mnt/@snapshots/@root-2015-08-10-20:19 /mnt/@root
+```
+а потом просто перезагрузиться :)
+
+вы, вероятно, захотите использовать [Snapper](https://wiki.archlinux.org/index.php/Snapper) или что-то подобное для управления снимками.
+
+## 7. Литература
+Установка archlinux: 
+- [ArchWiki](https://wiki.archlinux.org/title/installation_guide_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9))
+Btrfs:
+- [ArchWiki](https://wiki.archlinux.org/title/Btrfs_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9))
+- [seraph](https://gist.github.com/seraph/05cc841c87e950da4bc36ff1b43cea98)
+
