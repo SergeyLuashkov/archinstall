@@ -303,7 +303,7 @@ pacman -S pipewire pipewire-alsa pipewire-pulse wireplumber
 ```
 Активируйте службы
 ```
-systemctl --user enable pipwire.service
+systemctl --user enable pipewire.service
 systemctl --user enable pipewire-pulse
 ```
 `(Опцианально)` Установки pulsemixer
